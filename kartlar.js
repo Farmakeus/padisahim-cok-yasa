@@ -605,7 +605,7 @@ const TARIHI_KARTLAR = [
     yil: 1453,
     konusan: "Akşemseddin",
     metin: "Konstantiniyye... Hadiste müjdelenen fetih sizi bekliyor, hünkârım. Ordu hazır, toplar döküldü.",
-    a: { yazi: "Surları kuşat", etki: { hazine: -12, ordu: 6, halk: 12, ulema: 14 } },
+    a: { yazi: "Surları kuşat", etki: { hazine: -8 }, kampanya: "istanbul" },
     b: { yazi: "Bu iş bize büyük", etki: { ordu: -12, ulema: -14, halk: -8 } },
   },
   {
@@ -621,7 +621,7 @@ const TARIHI_KARTLAR = [
     yil: 1529,
     konusan: "Serdar",
     metin: "Ordu Viyana surları önünde. Lakin kış yaklaşıyor ve ağır toplar çamura saplandı, hünkârım.",
-    a: { yazi: "Kuşatmayı sürdür", etki: { ordu: -12, hazine: -12, ulema: 6 } },
+    a: { yazi: "Kuşatmayı sürdür", etki: { hazine: -8 }, kampanya: "viyana" },
     b: { yazi: "Baharda dönmek üzere çekil", etki: { ordu: -4, halk: -4 } },
   },
   {
@@ -938,4 +938,171 @@ const DEFTER_KAYITLARI = {
   muhur8pakt: "Fermanlarda artık iki mühür var. Devlet 'emin ellerde'.",
   muhur8av: "Dehlizden yüz yıllık defterler çıktı. Son satır: 'Büyük Usta payitahta iniyor.'",
   muhur9: "Ayasofya'nın mahzeninde Büyük Usta ile son yüzleşme.",
+};
+
+// ============================================================
+// SEFERLER — çok kartlı yönetilen harekâtlar.
+// Bir seçimin "kampanya" alanı seferi başlatır; sefer boyunca
+// yalnızca sefer kartları gelir ve yıl ilerlemez. Her seçim
+// "ilerleme" kadar gidişat puanını oynatır (başlangıç 50).
+// Son kartın ardından gidişat "esik"i aşıyorsa zafer, aşmıyorsa
+// hezimet kartı açılır. Sefer kartları "sefer: true" taşır.
+// ============================================================
+
+const KAMPANYALAR = {
+  istanbul: {
+    ad: "İstanbul Kuşatması",
+    cubukAd: "Kuşatmanın Gidişatı",
+    esik: 72,
+    kartlar: [
+      {
+        sefer: true,
+        konusan: "Topçubaşı",
+        metin: "Macar usta Urban, surları yıkacak dev bir top dökebilirim diyor. İstediği ücret dudak uçuklatıyor.",
+        a: { yazi: "Ne istiyorsa verin", etki: { hazine: -10 }, ilerleme: 10 },
+        b: { yazi: "Kendi ustalarımız döksün", etki: { hazine: -4 }, ilerleme: 3 },
+      },
+      {
+        sefer: true,
+        konusan: "Topçubaşı",
+        metin: "Şahi topları surları dövüyor ama namlular ısınıyor; çatlama riski var. Gece de ateş edelim mi?",
+        a: { yazi: "Gece gündüz dövün", etki: { ordu: -6 }, ilerleme: 8 },
+        b: { yazi: "Ölçülü ateşle namluları koru", etki: {}, ilerleme: 3 },
+      },
+      {
+        sefer: true,
+        konusan: "Kaptan-ı Derya",
+        metin: "Haliç'in ağzı zincirle kapalı; donanma içeri giremiyor, hünkârım.",
+        a: { yazi: "Gemileri karadan yürütün!", etki: { hazine: -8 }, ilerleme: 12 },
+        b: { yazi: "Zinciri zorlayın", etki: { ordu: -6 }, ilerleme: 2 },
+      },
+      {
+        sefer: true,
+        konusan: "Kaptan-ı Derya",
+        metin: "Ceneviz'den yardım gemileri şehre yaklaşıyor: erzak ve asker taşıyorlar.",
+        a: { yazi: "Donanmayı üstlerine sal", etki: { ordu: -5 }, ilerleme: 6 },
+        b: { yazi: "Bırak girsinler, sur önemli", etki: {}, ilerleme: -8 },
+      },
+      {
+        sefer: true,
+        konusan: "Lağımcıbaşı",
+        metin: "Sur altına tünel kazıyoruz ama düşman karşı tünellerle bizi suda boğuyor, hünkârım.",
+        a: { yazi: "Tünel savaşını sürdür", etki: { ordu: -4 }, ilerleme: 6 },
+        b: { yazi: "Lağımları kapatın", etki: { ordu: 2 }, ilerleme: -3 },
+      },
+      {
+        sefer: true,
+        konusan: "Akşemseddin",
+        metin: "Kuşatma uzadıkça orduda fısıltı çoğalıyor. Müjde, hünkârım: Eyyûb el-Ensarî'nin kabrini bulduk.",
+        a: { yazi: "Kabri ordu önünde ziyaret et", etki: { ulema: 8 }, ilerleme: 6 },
+        b: { yazi: "Fısıltıları sustur", etki: { ordu: -4 }, ilerleme: 2 },
+      },
+      {
+        sefer: true,
+        konusan: "Sadrazam",
+        metin: "Kuşatmayı kaldıralım hünkârım; Avrupa birleşmeden dönelim. Bu surlar nice orduyu yuttu.",
+        a: { yazi: "Ya ben şehri alırım ya şehir beni", etki: { ordu: -4 }, ilerleme: 6 },
+        b: { yazi: "Ordunun yarısını geri yolla", etki: { hazine: 4 }, ilerleme: -10 },
+      },
+      {
+        sefer: true,
+        konusan: "Bizans Elçisi",
+        metin: "İmparator teklif sunuyor: kuşatmayı kaldırın, size her yıl haraç ödensin.",
+        a: { yazi: "Reddet: şehri isterim", etki: { hazine: -4 }, ilerleme: 5 },
+        b: { yazi: "Pazarlığı uzat, vakit kazan", etki: { hazine: 6 }, ilerleme: -5 },
+      },
+      {
+        sefer: true,
+        konusan: "Serdar",
+        metin: "Surlarda gedikler açıldı ama savunucular her gece yeniden örüyor, hünkârım.",
+        a: { yazi: "Gedikleri gece de dövün", etki: { ordu: -5 }, ilerleme: 7 },
+        b: { yazi: "Askeri son hücuma saklayın", etki: { ordu: 6 }, ilerleme: -3 },
+      },
+      {
+        sefer: true,
+        konusan: "Yeniçeri Ağası",
+        metin: "Asker hazır, gedikler açık, ay hilal... Ya şimdi ya hiç, hünkârım.",
+        a: { yazi: "Umumi hücum!", etki: { ordu: -8 }, ilerleme: 8 },
+        b: { yazi: "Bir hafta daha bekleyin", etki: { ordu: 4 }, ilerleme: -6 },
+      },
+    ],
+    zafer: {
+      akibet: true,
+      konusan: "Akşemseddin",
+      metin: "Fetih müyesser oldu, hünkârım! Konstantiniyye düştü — çağ kapandı, çağ açıldı. Şehir fermanınızı bekliyor.",
+      a: { yazi: "Şehri imar et, Ayasofya cami olsun", etki: { ulema: 14, halk: 12, hazine: -8 } },
+      b: { yazi: "Orduya üç gün yağma izni ver", etki: { ordu: 12, hazine: 12, halk: -8, ulema: -4 } },
+    },
+    hezimet: {
+      akibet: true,
+      konusan: "Sadrazam",
+      metin: "Kuşatma kalktı, hünkârım... Ordu bitkin, hazine yorgun; surlar bir kez daha dimdik ayakta.",
+      a: { yazi: "Yeniden hazırlanacağız, ilan et", etki: { hazine: -8, ordu: 4, halk: -6 } },
+      b: { yazi: "Ricatın vebalini vezirlere yükle", etki: { ulema: -8, halk: -6, ordu: -4 } },
+    },
+  },
+
+  viyana: {
+    ad: "Viyana Kuşatması",
+    cubukAd: "Kuşatmanın Gidişatı",
+    esik: 78,
+    kartlar: [
+      {
+        sefer: true,
+        konusan: "Topçubaşı",
+        metin: "Yollar çamur deryası; ağır kuşatma topları günler gerimizde kaldı, hünkârım.",
+        a: { yazi: "Topları bekle", etki: { ordu: -4 }, ilerleme: 8 },
+        b: { yazi: "Eldeki hafif toplarla başla", etki: { ordu: 2 }, ilerleme: -6 },
+      },
+      {
+        sefer: true,
+        konusan: "Yeniçeri Ağası",
+        metin: "Asker 'kış kapıda, İstanbul uzak' diye homurdanıyor, hünkârım.",
+        a: { yazi: "Kışlık ve ganimet vaat et", etki: { hazine: -10 }, ilerleme: 8 },
+        b: { yazi: "Disiplinle sustur", etki: { ordu: -6 }, ilerleme: 2 },
+      },
+      {
+        sefer: true,
+        konusan: "Lağımcıbaşı",
+        metin: "Bu surlar Konstantiniyye gibi değil: ince ve eski. Lağımla çökertebiliriz.",
+        a: { yazi: "Lağımcıları çalıştır", etki: { ordu: -4 }, ilerleme: 10 },
+        b: { yazi: "Merdivenle hücum dene", etki: { ordu: -8 }, ilerleme: 4 },
+      },
+      {
+        sefer: true,
+        konusan: "Akıncı Beyi",
+        metin: "Alman prensliklerinden yardım ordusu toplanıyormuş; akıncılarım yollarını biliyor.",
+        a: { yazi: "Kuşatmayı hızlandır", etki: { ordu: -6 }, ilerleme: 8 },
+        b: { yazi: "Yardım ordusunu karşılamaya çık", etki: { ordu: 4 }, ilerleme: -8 },
+      },
+      {
+        sefer: true,
+        konusan: "Defterdar",
+        metin: "Erzak azalıyor, hünkârım; ekim geldi, tepelerde kar var.",
+        a: { yazi: "Tayınları yarıya indir", etki: { ordu: -6 }, ilerleme: 6 },
+        b: { yazi: "Dönüş erzakını şimdiden ayır", etki: {}, ilerleme: -6 },
+      },
+      {
+        sefer: true,
+        konusan: "Serdar",
+        metin: "Son fırsat, hünkârım: ya her şeyi tek hücuma yatırırız ya da ordu kar altında kalır.",
+        a: { yazi: "Umumi hücum!", etki: { ordu: -10 }, ilerleme: 10 },
+        b: { yazi: "Düzenli ricata başla", etki: { ordu: 6 }, ilerleme: -14 },
+      },
+    ],
+    zafer: {
+      akibet: true,
+      konusan: "Serdar",
+      metin: "Viyana düştü, hünkârım! Kızıl elma avucunuzda — Frengistan'ın kalbinde sancağımız dalgalanıyor.",
+      a: { yazi: "Kışı Viyana'da geçir, şehri elde tut", etki: { hazine: 14, halk: 8, ulema: 8, ordu: -8 } },
+      b: { yazi: "Yağmala ve zaferle dön", etki: { hazine: 16, ordu: 8, ulema: -6 } },
+    },
+    hezimet: {
+      akibet: true,
+      konusan: "Serdar",
+      metin: "Kar altında ricat, hünkârım... Ağır toplar çamura gömüldü; Viyana önlerinde bir hayal bıraktık.",
+      a: { yazi: "Ricatı düzenle, orduyu koru", etki: { ordu: -6, halk: -4 } },
+      b: { yazi: "Ağırlıkları bırak, hızlı dön", etki: { ordu: -4, hazine: -10 } },
+    },
+  },
 };

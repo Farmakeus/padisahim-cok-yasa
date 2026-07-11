@@ -159,6 +159,7 @@ function oyunuBaslat() {
     gorulenSultanlar: new Set([sultanBul(BASLANGIC_YILI)]),
     aktifKart: null,
     bekleyenler: [], // kuyruktaki akıbet kartları: {id, kalan karar sayısı}
+    kampanya: null,  // süren sefer: {id, adim, basari} — sefer boyunca yıl donar
     // Kara Mühür hikâyesi — kaldığı yer defterden okunur (defter.siradaki)
     hikayeSayac: 0,    // son hikâye kartından bu yana geçen karar
     hikayeGorulen: 0,  // bu oyunda kaç bölüm görüldü
@@ -198,6 +199,18 @@ function devirBul(yil) {
 // --- Kart seçimi ---
 
 function kartCek() {
+  // Süren sefer her şeyin önüne geçer: sıradaki sefer kartı gelir,
+  // kartlar bitince gidişata göre zafer ya da hezimet kartı açılır
+  if (durum.kampanya) {
+    const sefer = KAMPANYALAR[durum.kampanya.id];
+    if (durum.kampanya.adim < sefer.kartlar.length) {
+      return sefer.kartlar[durum.kampanya.adim];
+    }
+    const sonuc = durum.kampanya.basari >= sefer.esik ? sefer.zafer : sefer.hezimet;
+    durum.kampanya = null;
+    return sonuc;
+  }
+
   // Önce vakti gelmiş tarihî olay var mı bak
   const vaktiGelen = TARIHI_KARTLAR.find(
     (k) => !durum.gorulenTarihi.has(k.id) && durum.yil >= k.yil
@@ -282,6 +295,17 @@ function secimYap(secim) {
     durum.bekleyenler.push({ id: secim.takip.id, kalan: secim.takip.gecikme });
   }
 
+  // Sefer başlatan seçim ordugâhı kurar (gidişat 50'den başlar)
+  if (secim.kampanya) {
+    durum.kampanya = { id: secim.kampanya, adim: 0, basari: 50 };
+  }
+
+  // Sefer kartındaysak gidişatı oynat ve sonraki karta geç
+  if (durum.aktifKart.sefer && durum.kampanya) {
+    durum.kampanya.basari = Math.max(0, Math.min(100, durum.kampanya.basari + (secim.ilerleme || 0)));
+    durum.kampanya.adim++;
+  }
+
   // Hikâye kartıysa zinciri ilerlet ve deftere işle
   if (durum.aktifKart.hikaye) {
     defter.siradaki = secim.sonraki || null;
@@ -301,8 +325,12 @@ function secimYap(secim) {
     durum[guc] = Math.max(1, Math.min(99, durum[guc]));
   }
 
-  yilIlerle();
-  if (durum.yil >= BITIS_YILI) return oyunuBitir("zafer");
+  // Sefer sırasında yıl donar: kuşatma haftalarla ölçülür, yıllarla değil.
+  // (Sefer kartları ve seferi başlatan seçim yıl ilerletmez.)
+  if (!durum.aktifKart.sefer && !secim.kampanya) {
+    yilIlerle();
+    if (durum.yil >= BITIS_YILI) return oyunuBitir("zafer");
+  }
 
   kartGoster(kartCek());
   arayuzuGuncelle();
@@ -408,8 +436,8 @@ function kartGoster(kart) {
   document.getElementById("secim-a").textContent = kart.a.yazi;
   document.getElementById("secim-b").textContent = kart.b.yazi;
 
-  // Tarihî olay, hikâye ve ani olay kartlarını görsel olarak ayır
-  kutu.classList.toggle("tarihi", Boolean(kart.id) && !kart.hikaye);
+  // Tarihî olay, sefer, hikâye ve ani olay kartlarını görsel olarak ayır
+  kutu.classList.toggle("tarihi", (Boolean(kart.id) || Boolean(kart.sefer)) && !kart.hikaye);
   kutu.classList.toggle("hikaye", Boolean(kart.hikaye));
   kutu.classList.toggle("tepki", Boolean(kart.tepki));
 
@@ -443,6 +471,19 @@ function arayuzuGuncelle() {
   document.getElementById("yil-goster").textContent = durum.yil;
   document.getElementById("devir-goster").textContent = devirBul(durum.yil);
   document.getElementById("sultan-goster").textContent = sultanBul(durum.yil);
+
+  // Sefer paneli: sefer sürerken gidişat çubuğu ve aşama sayacı görünür
+  const panel = document.getElementById("kampanya-panel");
+  if (durum.kampanya) {
+    const sefer = KAMPANYALAR[durum.kampanya.id];
+    panel.classList.remove("gizli");
+    document.getElementById("kampanya-ad").textContent = sefer.ad;
+    document.getElementById("kampanya-adim").textContent =
+      Math.min(durum.kampanya.adim + 1, sefer.kartlar.length) + " / " + sefer.kartlar.length;
+    document.getElementById("kampanya-dolgu").style.width = durum.kampanya.basari + "%";
+  } else {
+    panel.classList.add("gizli");
+  }
 
   for (const guc of ["hazine", "ordu", "halk", "ulema"]) {
     const stat = document.getElementById("stat-" + guc);

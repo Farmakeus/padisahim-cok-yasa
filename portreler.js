@@ -159,13 +159,16 @@ const KONUSAN_PORTRE = {
   // Yeniçeri ve kapıkulu askerleri
   "Yeniçeri Ağası": "asker", "Serasker": "asker", "Muhafız": "asker",
   "Zaptiye": "asker", "Silahtar": "asker", "Topçubaşı": "asker",
+  "Lağımcıbaşı": "asker",
   // Serhat gazileri ve serdarlar
   "Alp Gazi": "gazi", "Süleyman Paşa": "gazi", "Serdar": "gazi",
+  "Akıncı Beyi": "gazi",
   // Denizciler
   "Kaptan-ı Derya": "denizci", "Kaptan": "denizci", "Liman Reisi": "denizci",
   "Tersane Emini": "denizci", "Barbaros Hayreddin Paşa": "denizci",
   // Yabancı elçiler
   "Venedik Elçisi": "elci", "Fransız Elçisi": "elci", "Yabancı Elçi": "elci",
+  "Bizans Elçisi": "elci",
   // Hazine ve kalem ehli
   "Defterdar": "katip", "Darphane Emini": "katip", "Gümrük Emini": "katip",
   "Vergi Mültezimi": "katip", "Hazinedar": "katip", "Kuyumcubaşı": "katip",
