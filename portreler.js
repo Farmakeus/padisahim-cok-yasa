@@ -64,6 +64,16 @@ const PORTRELER = {
     <circle cx="46" cy="52" r="5"/>
     <circle cx="46" cy="52" r="1.4" fill="currentColor"/>`,
 
+  // Haseki: üç dilimli taç, omza inen örgü, gerdanlık (Hürrem tarzı)
+  haseki: `
+    <circle cx="32" cy="30" r="9"/>
+    <path d="M24 22 L26 14 L29 19 L32 12 L35 19 L38 14 L40 22"/>
+    <path d="M23 27 Q21 36 23 44"/>
+    <path d="M41 27 Q44 34 41 39 Q38 43 41 48"/>
+    <circle cx="28" cy="43" r="1.1" fill="currentColor"/>
+    <circle cx="32" cy="44" r="1.1" fill="currentColor"/>
+    <circle cx="36" cy="43" r="1.1" fill="currentColor"/>`,
+
   // Valide Sultan: hotozlu taç, iki yana dökülen duvak, gerdanlık
   valide: `
     <circle cx="32" cy="30" r="9"/>
@@ -174,6 +184,10 @@ const KONUSAN_PORTRE = {
   "Vergi Mültezimi": "katip", "Hazinedar": "katip", "Kuyumcubaşı": "katip",
   // Harem
   "Valide Sultan": "valide",
+  "Kösem Sultan": "valide", "Turhan Sultan": "valide", "Safiye Sultan": "valide",
+  "Hürrem Sultan": "haseki", "Mihrimah Sultan": "haseki", "Haseki Sultan": "haseki",
+  "Darüssaade Ağası": "saray",
+  "Rüstem Paşa": "vezir",
   // Halk
   "Halktan Biri": "halk", "Tüccar": "halk", "Esnaf Kethüdası": "halk",
   // Dervişler
