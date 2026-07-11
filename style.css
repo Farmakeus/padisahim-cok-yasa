@@ -1,0 +1,561 @@
+/* ============================================================
+   PADİŞAHIM ÇOK YAŞA — görünüm
+   Renkler: koyu patlıcan zemin, fildişi kart, altın ve al vurgular
+   ============================================================ */
+
+:root {
+  --zemin: #221a2b;
+  --zemin-koyu: #191320;
+  --fildisi: #f3e9d2;
+  --fildisi-soluk: #d9cdb4;
+  --altin: #c9a227;
+  --altin-acik: #e0be55;
+  --al: #8e1f2f;
+  --al-koyu: #6f1624;
+  --murekkep: #2b2320;
+  --tehlike: #d64545;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  background: radial-gradient(ellipse at 50% 20%, var(--zemin) 0%, var(--zemin-koyu) 90%);
+  color: var(--fildisi);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.ekran {
+  width: 100%;
+  max-width: 560px;
+  min-height: 100vh;
+  padding: 32px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.gizli { display: none !important; }
+
+/* ---------- Açılış ---------- */
+
+.baslik-blok { margin-top: 8vh; }
+
+.sus {
+  width: 200px;
+  color: var(--altin);
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-size: 3rem;
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fildisi);
+  text-shadow: 0 2px 12px rgba(201, 162, 39, 0.25);
+}
+
+.alt-baslik {
+  margin-top: 10px;
+  color: var(--altin);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.aciklama {
+  margin: 40px 0;
+  max-width: 420px;
+  color: var(--fildisi-soluk);
+  line-height: 1.7;
+}
+
+.aciklama p + p { margin-top: 14px; }
+.aciklama strong { color: var(--altin-acik); font-weight: normal; }
+
+.buyuk-btn {
+  font-family: inherit;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  padding: 14px 42px;
+  color: var(--fildisi);
+  background: linear-gradient(180deg, var(--al) 0%, var(--al-koyu) 100%);
+  border: 1px solid var(--altin);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.buyuk-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(201, 162, 39, 0.25);
+}
+
+.rekor {
+  margin-top: 18px;
+  color: var(--altin);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* ---------- Oyun üst bilgisi ---------- */
+
+.oyun-ust {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border-bottom: 1px solid rgba(201, 162, 39, 0.35);
+  padding-bottom: 12px;
+}
+
+#yil-goster {
+  font-size: 1.7rem;
+  color: var(--altin-acik);
+  letter-spacing: 0.1em;
+}
+
+.devir {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--fildisi-soluk);
+  margin-left: 10px;
+}
+
+.sultan {
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--fildisi);
+  margin-top: 4px;
+}
+
+.bildirim {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: var(--altin-acik);
+  opacity: 0;
+}
+
+.bildirim.goster { animation: belirKaybol 3.5s ease forwards; }
+
+@keyframes belirKaybol {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  75% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ---------- Güç çubukları ---------- */
+
+.stat-cubuklari {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  margin: 22px 0 8px;
+}
+
+.stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  color: var(--fildisi-soluk);
+}
+
+.stat svg { width: 26px; height: 26px; }
+
+.stat .cubuk {
+  width: 100%;
+  height: 5px;
+  background: rgba(243, 233, 210, 0.15);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.stat .dolgu {
+  height: 100%;
+  width: 50%;
+  background: var(--altin);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.stat-ad {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+/* Tehlike bölgesindeki güç kırmızıya döner ve nabız gibi atar */
+.stat.tehlike { color: var(--tehlike); }
+.stat.tehlike .dolgu { background: var(--tehlike); animation: nabiz 1.2s infinite; }
+
+@keyframes nabiz {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+/* Seçim üstüne gelince etkilenecek güçlerde altın nokta belirir */
+.stat.etkilenecek::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--altin-acik);
+  box-shadow: 0 0 8px var(--altin-acik);
+}
+
+/* ---------- Olay kartı ---------- */
+
+.kart {
+  width: 100%;
+  min-height: 220px;
+  margin: 18px 0;
+  padding: 26px 24px;
+  background: var(--fildisi);
+  color: var(--murekkep);
+  border-radius: 6px;
+  border: 1px solid var(--altin);
+  box-shadow:
+    inset 0 0 0 4px var(--fildisi),
+    inset 0 0 0 5px rgba(201, 162, 39, 0.5),
+    0 10px 30px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+}
+
+.kart.giris { animation: kartGirisi 0.45s ease; }
+
+@keyframes kartGirisi {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Tarihî olay kartları al şeritli gelir */
+.kart.tarihi { border-color: var(--al); box-shadow:
+  inset 0 0 0 4px var(--fildisi),
+  inset 0 0 0 5px rgba(142, 31, 47, 0.55),
+  0 10px 30px rgba(0, 0, 0, 0.45); }
+
+.kart.tarihi .konusan { color: var(--al); }
+
+/* Kara Mühür hikâye kartları: koyu, mühürlü, uğursuz */
+.kart.hikaye {
+  background: linear-gradient(160deg, #2a2136 0%, #1c1526 100%);
+  color: var(--fildisi);
+  border-color: var(--altin);
+  box-shadow:
+    inset 0 0 0 4px #241c2e,
+    inset 0 0 0 5px rgba(201, 162, 39, 0.45),
+    0 10px 34px rgba(0, 0, 0, 0.6);
+}
+
+.kart.hikaye .konusan { color: var(--altin-acik); }
+
+/* Kartın köşesinde kara balmumu mühür izi */
+.kart.hikaye::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #3a3145 0%, #14101c 70%);
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+}
+
+.kart { position: relative; }
+
+/* Oyun sonunda hikâyenin akıbeti italik ve altın görünür */
+.hikaye-akibet {
+  font-style: italic;
+  color: var(--altin);
+  max-width: 400px;
+  margin-top: 4px;
+}
+
+/* Konuşanın çizgi portresi: rengi kart türüne uyar */
+.portre {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto -4px;
+  color: rgba(43, 35, 32, 0.8);
+}
+
+.portre svg { width: 100%; height: 100%; }
+
+.kart.tarihi .portre { color: var(--al); }
+.kart.hikaye .portre { color: var(--altin-acik); }
+.kart.tepki .portre { color: var(--tehlike); }
+
+.konusan {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--altin);
+}
+
+/* Ani olay kartları: al kenar nabız gibi atar, süre çubuğu erir */
+.kart.tepki {
+  border-color: var(--tehlike);
+  animation: tepkiNabzi 0.9s infinite;
+}
+
+@keyframes tepkiNabzi {
+  0%, 100% { box-shadow: inset 0 0 0 4px var(--fildisi), inset 0 0 0 5px rgba(214, 69, 69, 0.55), 0 10px 30px rgba(0, 0, 0, 0.45); }
+  50% { box-shadow: inset 0 0 0 4px var(--fildisi), inset 0 0 0 5px rgba(214, 69, 69, 0.15), 0 10px 30px rgba(0, 0, 0, 0.45); }
+}
+
+.kart.tepki .konusan { color: var(--tehlike); }
+
+.tepki-cubugu {
+  width: 100%;
+  height: 6px;
+  background: rgba(43, 35, 32, 0.15);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.tepki-dolgu {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--al) 0%, var(--tehlike) 100%);
+  border-radius: 3px;
+}
+
+.kart-metin {
+  font-size: 1.15rem;
+  line-height: 1.6;
+}
+
+/* ---------- Seçim düğmeleri ---------- */
+
+.secimler {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.secim-btn {
+  flex: 1;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  padding: 14px 12px;
+  color: var(--fildisi);
+  background: linear-gradient(180deg, var(--al) 0%, var(--al-koyu) 100%);
+  border: 1px solid rgba(201, 162, 39, 0.6);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+}
+
+.secim-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 16px rgba(201, 162, 39, 0.3);
+  border-color: var(--altin-acik);
+}
+
+.ipucu {
+  margin-top: 14px;
+  font-size: 0.72rem;
+  color: rgba(217, 205, 180, 0.45);
+  letter-spacing: 0.05em;
+}
+
+/* ---------- Oyun sonu ---------- */
+
+#son-ekrani { justify-content: center; }
+
+#son-baslik {
+  font-size: 2.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--altin-acik);
+  margin: 18px 0;
+}
+
+.son-metin {
+  max-width: 440px;
+  line-height: 1.7;
+  color: var(--fildisi);
+  font-size: 1.05rem;
+}
+
+.son-ozet {
+  margin: 30px 0 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--fildisi-soluk);
+  font-size: 0.95rem;
+}
+
+.son-ozet span { color: var(--altin-acik); font-size: 1.1rem; }
+
+.yeni-rekor {
+  color: var(--altin-acik);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.85rem;
+  margin-top: 6px;
+}
+
+/* ---------- Kara Mühür Defteri ---------- */
+
+.ufak-btn {
+  font-family: inherit;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  margin-top: 14px;
+  padding: 8px 18px;
+  color: var(--fildisi-soluk);
+  background: transparent;
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.ufak-btn:hover { border-color: var(--altin-acik); color: var(--fildisi); }
+
+.ufak-btn.tehlikeli { border-color: rgba(214, 69, 69, 0.4); }
+.ufak-btn.tehlikeli:hover { border-color: var(--tehlike); color: var(--tehlike); }
+
+.defter-baslik {
+  font-size: 1.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--altin-acik);
+  margin-top: 14px;
+}
+
+.defter-alt {
+  margin: 8px 0 24px;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--fildisi-soluk);
+}
+
+.defter-liste {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.defter-kayit {
+  padding: 10px 14px;
+  border-left: 2px solid var(--altin);
+  background: rgba(243, 233, 210, 0.05);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--fildisi);
+}
+
+.defter-kayit.kilitli,
+.defter-son.kilitli {
+  border-left-color: rgba(243, 233, 210, 0.2);
+  color: rgba(217, 205, 180, 0.35);
+  font-style: italic;
+}
+
+.defter-bolum {
+  display: block;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--altin);
+  margin-bottom: 3px;
+}
+
+/* Vakayiname satırı: kaydın keşfedildiği yıl ve padişah */
+.defter-kesif {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: rgba(224, 190, 85, 0.75);
+}
+
+.defter-ara {
+  margin: 26px 0 12px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--fildisi-soluk);
+}
+
+.defter-sonlar {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.defter-son {
+  padding: 10px 14px;
+  border-left: 2px solid var(--al);
+  background: rgba(142, 31, 47, 0.08);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.defter-son .defter-bolum { color: var(--al); }
+
+/* Saltanat kayıtları: hanedanın mezar taşları */
+.defter-saltanatlar {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.defter-saltanat {
+  padding: 7px 14px;
+  border-left: 2px solid rgba(217, 205, 180, 0.35);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--fildisi-soluk);
+}
+
+.defter-saltanat span { color: var(--altin-acik); }
+
+.defter-saltanat.kilitli {
+  color: rgba(217, 205, 180, 0.35);
+  font-style: italic;
+}
+
+.defter-butonlar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 26px 0 10px;
+}
+
+/* ---------- Dar ekranlar ---------- */
+
+@media (max-width: 420px) {
+  h1 { font-size: 2.3rem; }
+  .kart-metin { font-size: 1.02rem; }
+  .ipucu { display: none; }
+}

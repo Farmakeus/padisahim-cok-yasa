@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Padişahım Çok Yaşa — Bir Osmanlı Taht Oyunu</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============ AÇILIŞ EKRANI ============ -->
+  <section id="baslangic-ekrani" class="ekran">
+    <div class="baslik-blok">
+      <svg class="sus" viewBox="0 0 200 24" aria-hidden="true">
+        <line x1="0" y1="12" x2="80" y2="12" stroke="currentColor" stroke-width="1"/>
+        <path d="M100 2 L110 12 L100 22 L90 12 Z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="100" cy="12" r="2.5" fill="currentColor"/>
+        <line x1="120" y1="12" x2="200" y2="12" stroke="currentColor" stroke-width="1"/>
+      </svg>
+      <h1>Padişahım<br>Çok Yaşa</h1>
+      <p class="alt-baslik">Bir Osmanlı Taht Oyunu</p>
+    </div>
+
+    <div class="aciklama">
+      <p>Sene 1299. Söğüt'te bir obadan koca bir cihan devleti doğacak — dizginler senin elinde.</p>
+      <p>Her kararında dört gücü dengede tut: <strong>Hazine</strong>, <strong>Ordu</strong>, <strong>Halk</strong> ve <strong>Ulema</strong>. Hiçbiri ne dibe vursun ne başına buyruk olacak kadar güçlensin — ikisi de tahttan eder.</p>
+      <p>1922'ye kadar dayanabilecek misin?</p>
+    </div>
+
+    <button id="basla-btn" class="buyuk-btn">Saltanat Başlasın</button>
+    <p id="rekor-satiri" class="rekor gizli"></p>
+    <button id="defter-btn" class="ufak-btn gizli"></button>
+  </section>
+
+  <!-- ============ OYUN EKRANI ============ -->
+  <section id="oyun-ekrani" class="ekran gizli">
+    <header class="oyun-ust">
+      <div class="yil-blok">
+        <span id="yil-goster">1299</span>
+        <span id="devir-goster" class="devir">Kuruluş Devri</span>
+      </div>
+      <div id="sultan-goster" class="sultan">Osman Gazi</div>
+    </header>
+
+    <div id="sultan-bildirim" class="bildirim gizli"></div>
+
+    <div class="stat-cubuklari">
+      <div class="stat" id="stat-hazine" title="Hazine">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/>
+        </svg>
+        <div class="cubuk"><div class="dolgu"></div></div>
+        <span class="stat-ad">Hazine</span>
+      </div>
+      <div class="stat" id="stat-ordu" title="Ordu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/><polyline points="14.5 6.5 18 3 21 3 21 6 17.5 10"/><line x1="5" x2="9" y1="14" y2="18"/><line x1="7" x2="4" y1="17" y2="20"/><line x1="3" x2="5" y1="19" y2="21"/>
+        </svg>
+        <div class="cubuk"><div class="dolgu"></div></div>
+        <span class="stat-ad">Ordu</span>
+      </div>
+      <div class="stat" id="stat-halk" title="Halk">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <div class="cubuk"><div class="dolgu"></div></div>
+        <span class="stat-ad">Halk</span>
+      </div>
+      <div class="stat" id="stat-ulema" title="Ulema">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        <div class="cubuk"><div class="dolgu"></div></div>
+        <span class="stat-ad">Ulema</span>
+      </div>
+    </div>
+
+    <div id="kart" class="kart">
+      <div id="kart-portre" class="portre"></div>
+      <p id="kart-konusan" class="konusan">Sadrazam</p>
+      <p id="kart-metin" class="kart-metin"></p>
+      <div id="tepki-cubugu" class="tepki-cubugu gizli"><div class="tepki-dolgu"></div></div>
+    </div>
+
+    <div class="secimler">
+      <button id="secim-a" class="secim-btn"></button>
+      <button id="secim-b" class="secim-btn"></button>
+    </div>
+
+    <p class="ipucu">Klavyeyle de oynayabilirsin: ← sol seçenek, → sağ seçenek</p>
+  </section>
+
+  <!-- ============ OYUN SONU EKRANI ============ -->
+  <section id="son-ekrani" class="ekran gizli">
+    <svg class="sus" viewBox="0 0 200 24" aria-hidden="true">
+      <line x1="0" y1="12" x2="80" y2="12" stroke="currentColor" stroke-width="1"/>
+      <path d="M100 2 L110 12 L100 22 L90 12 Z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="100" cy="12" r="2.5" fill="currentColor"/>
+      <line x1="120" y1="12" x2="200" y2="12" stroke="currentColor" stroke-width="1"/>
+    </svg>
+    <h2 id="son-baslik">Saltanat Sona Erdi</h2>
+    <p id="son-metin" class="son-metin"></p>
+    <div id="son-ozet" class="son-ozet"></div>
+    <button id="tekrar-btn" class="buyuk-btn">Yeniden Tahta Çık</button>
+    <button id="son-defter-btn" class="ufak-btn gizli"></button>
+  </section>
+
+  <!-- ============ KARA MÜHÜR DEFTERİ ============ -->
+  <section id="defter-ekrani" class="ekran gizli">
+    <svg class="sus" viewBox="0 0 200 24" aria-hidden="true">
+      <line x1="0" y1="12" x2="80" y2="12" stroke="currentColor" stroke-width="1"/>
+      <path d="M100 2 L110 12 L100 22 L90 12 Z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="100" cy="12" r="2.5" fill="currentColor"/>
+      <line x1="120" y1="12" x2="200" y2="12" stroke="currentColor" stroke-width="1"/>
+    </svg>
+    <h2 class="defter-baslik">Kara Mühür Defteri</h2>
+    <p class="defter-alt">Hanedanın gizli kayıtları. Padişahlar ölür; defter kalır, av sürer.</p>
+
+    <div id="defter-liste" class="defter-liste"></div>
+
+    <h3 class="defter-ara">Görülen Sonlar</h3>
+    <div id="defter-sonlar" class="defter-sonlar"></div>
+
+    <h3 class="defter-ara">Saltanat Kayıtları</h3>
+    <div id="defter-saltanatlar" class="defter-saltanatlar"></div>
+
+    <div class="defter-butonlar">
+      <button id="defter-geri" class="buyuk-btn">Geri Dön</button>
+      <button id="defter-sar" class="ufak-btn gizli">Hikâyeyi Başa Sar</button>
+      <button id="defter-yak" class="ufak-btn tehlikeli">Defteri Yak</button>
+    </div>
+  </section>
+
+  <script src="kartlar.js"></script>
+  <script src="portreler.js"></script>
+  <script src="oyun.js"></script>
+</body>
+</html>
