@@ -70,6 +70,54 @@ const SONLAR = {
     baslik: "623 Yıllık Destan",
     metin: "1 Kasım 1922 — Saltanat kaldırıldı. Söğüt'te bir obadan üç kıtaya uzanan altı asırlık hanedanın son halkası oldunuz. Oyunu tamamladınız!",
   },
+  zafer_guclu: {
+    baslik: "Üç Kıtaya Hükmeden",
+    metin: "1 Kasım 1922 — Saltanat kaldırıldı, ama sen zirvede teslim ettin bayrağı: dolu hazine, dinç ordu, ardında bir millet. Söğüt'ten buraya, altı asrın en muzaffer son halkası oldun. Oyunu şanla tamamladın!",
+  },
+  zafer_zayif: {
+    baslik: "Hasta Adam Ayakta",
+    metin: "1 Kasım 1922 — Saltanat kaldırıldı. Avrupa'nın 'hasta adam' dediği devleti; borç içinde, her yanı çökük, bitkin ama nefes alır halde 1922'ye taşıdın. Ayakta kalmak da bir zaferdir. Oyunu tamamladın!",
+  },
+  suikast: {
+    baslik: "Hançer Konuştu",
+    metin: "Bir gölge, bir çelik parıltısı, bir çığlık... Suikastçının hançeri hanedanın son halkasını da düşürdü. Cülûs kargaşasından bu kez doğrulan olmadı.",
+  },
+};
+
+// Geç dönem çöküş sonları: aynı güç dibe/tepeye vurunca, yıl eşiği aşılmışsa
+// temel sonun yerine tarihe uygun farklı bir final gelir. Her varyant kendi
+// mezar taşı ibaresini de taşır.
+const SON_GEC = {
+  hazine_dip: {
+    minYil: 1850,
+    baslik: "Düyun-u Umumiye",
+    metin: "Borç dağ gibi büyüdü, taksitler ödenemedi. İngiliz ve Fransız alacaklılar Düyun-u Umumiye İdaresi'ni kurup devletin gelirlerine el koydu — artık kendi hazinene bile hükmedemiyorsun.",
+    mezar: "borç batağında hazinesini yabancıya kaptırdı",
+  },
+  ordu_dip: {
+    minYil: 1850,
+    baslik: "İşgal Altında",
+    metin: "Sancak altında toplanacak asker kalmadı. Düşman donanması Boğaz'a demir attı, işgal askerleri payitahtta cirit atıyor. Devlet-i Aliyye fiilen sona erdi.",
+    mezar: "ordusuz kaldı, payitaht işgal edildi",
+  },
+  ordu_tepe: {
+    minYil: 1908,
+    baslik: "İttihatçı Darbesi",
+    metin: "Ordu artık devletin sahibiydi. Bir baskınla Bâb-ı Âli'yi basan zabitler iktidara el koydu; sen sarayda, fermanları başkalarının yazdığı bir imzadan ibaret kaldın.",
+    mezar: "orduya söz geçiremeyip kukla kaldı",
+  },
+  halk_dip: {
+    minYil: 1876,
+    baslik: "İhtilal",
+    metin: "Sokaklar 'Hürriyet!' narasıyla inledi. Meşrutiyetçiler sarayı kuşattı; kanın dökülmeden ama tacın devrilerek, iradeni bir meclise teslim ettin.",
+    mezar: "ihtilalle tahtından edildi",
+  },
+  ulema_dip: {
+    minYil: 1900,
+    baslik: "31 Mart Vakası",
+    metin: "'Şeriat isteriz!' diye ayaklanan softalar ve avuçları kınalı erler payitahtı sardı. 'Dinden çıkmış' saydıkları tahtı, günlerce süren kanlı bir kalkışmayla devirdiler.",
+    mezar: "dinî bir kalkışmayla hal edildi",
+  },
 };
 
 // localStorage her ortamda bulunmayabilir (gizli sekme, paylaşım sayfası,
@@ -100,6 +148,9 @@ const MEZAR_METINLERI = {
   ulema_dip: "fetvayla hal edildi",
   ulema_tepe: "ulemanın gölgesinde kaldı",
   zafer: "623 yılı şanla tamamladı",
+  zafer_guclu: "623 yılı zirvede, muzaffer tamamladı",
+  zafer_zayif: "623 yılı zar zor, hasta adam olarak tamamladı",
+  suikast: "suikaste kurban gitti",
 };
 
 // --- Saltanat Kayıtları (oyunlar arası hanedan tarihi) ---
@@ -174,6 +225,7 @@ function oyunuBaslat() {
     tepkiZamanlayici: null,    // süre dolunca gecikme cezasını işletir
     // Kader Anı (Fable 5 canlı olayları) — sunucu yoksa hep atlanır
     fableSayac: 0,             // son Kader Anı'ndan bu yana geçen genel kart
+    suikastSayisi: 0,          // kaç padişah suikaste kurban gitti (öldürücü quicktime)
   };
   ekranSec("oyun-ekrani");
   kartGoster(kartCek());
@@ -327,6 +379,13 @@ function secimYap(secim) {
   // secim: aktif kartın "a"sı, "b"si ya da süre dolunca "gecikme"si
   clearTimeout(durum.tepkiZamanlayici); // ani olay sayacı varsa durdur
 
+  // Öldürücü sonuç: suikast quicktime'ında yanlış hamle ya da donup kalma.
+  // Normal etki akışını atlar; padişah ya cülûsla devrilir ya da ölür.
+  if (secim.oldur) {
+    durum.kararSayisi++;
+    return suikastSuccession();
+  }
+
   for (const [guc, deger] of Object.entries(secim.etki)) {
     durum[guc] += deger;
   }
@@ -402,6 +461,41 @@ function secimYap(secim) {
   if (typeof fablePrefetch === "function") fablePrefetch(durum);
 }
 
+// Suikast başarılı: reigning padişah öldü. Sağlıklı bir devlet cülûs
+// kargaşasını atlatır (tahta yeni padişah çıkar, oyun sürer); zaten zayıf
+// bir devlet ya da hanedanın son halkası ise burada biter — hepsi de
+// oyun sonunu etkiler (suikast sayacı + suikast finali + ağır bedel).
+function suikastSuccession() {
+  clearTimeout(durum.tepkiZamanlayici);
+  durum.suikastSayisi++;
+
+  // Cülûs kargaşasının ağır bedeli
+  durum.hazine -= 8;
+  durum.ordu -= 12;
+  durum.halk -= 8;
+
+  // Halefi yoksa (1918 sonrası) ya da kargaşa bir gücü kırdıysa hanedan biter
+  const sonraki = SULTANLAR.find(([yil]) => yil > durum.yil);
+  if (!sonraki || sonKontrol()) return oyunuBitir("suikast");
+
+  // Tahta yeni padişah: yıl onun cülûsuna atlar. Aradaki tarihî olaylar
+  // kaçırılır (suikastın bir başka bedeli) — üst üste dökülmesinler diye
+  // görülmüş sayılır.
+  durum.yil = sonraki[0];
+  durum.gorulenSultanlar.add(sonraki[1]);
+  for (const k of TARIHI_KARTLAR) {
+    if (k.yil <= durum.yil) durum.gorulenTarihi.add(k.id);
+  }
+  for (const guc of ["hazine", "ordu", "halk", "ulema"]) {
+    durum[guc] = Math.max(1, Math.min(99, durum[guc]));
+  }
+
+  bildirim("Suikaste kurban gittin! Tahta " + sonraki[1] + " çıktı — cülûs kargaşası hüküm sürüyor.");
+  kartGoster(kartCek());
+  arayuzuGuncelle();
+  if (typeof fablePrefetch === "function") fablePrefetch(durum);
+}
+
 function sonKontrol() {
   for (const guc of ["hazine", "ordu", "halk", "ulema"]) {
     if (durum[guc] <= 0) return guc + "_dip";
@@ -434,18 +528,41 @@ function yilIlerle() {
 
 // --- Oyun sonu ---
 
+// Sonu duruma göre çöz: zafer güç ortalamasına göre kademelenir; çöküşlerde
+// yıl eşiği aşılmışsa geç dönem varyantı gelir. {baslik, metin, mezar} döner.
+function sonuCoz(anahtar) {
+  // Zafer kademesi: son güç ortalamasına göre
+  if (anahtar === "zafer") {
+    const ort = (durum.hazine + durum.ordu + durum.halk + durum.ulema) / 4;
+    if (ort >= 65) anahtar = "zafer_guclu";
+    else if (ort < 35) anahtar = "zafer_zayif";
+  }
+  // Geç dönem çöküş varyantı
+  const gec = SON_GEC[anahtar];
+  if (gec && durum.yil >= gec.minYil) {
+    return { baslik: gec.baslik, metin: gec.metin, mezar: gec.mezar };
+  }
+  return {
+    baslik: SONLAR[anahtar].baslik,
+    metin: SONLAR[anahtar].metin,
+    mezar: MEZAR_METINLERI[anahtar],
+  };
+}
+
 function oyunuBitir(sonAnahtari) {
   clearTimeout(durum.tepkiZamanlayici); // ani olay sayacı kalmasın
-  const son = SONLAR[sonAnahtari];
+  const son = sonuCoz(sonAnahtari);
   const bitisYili = Math.min(durum.yil, BITIS_YILI);
   const gecenYil = bitisYili - BASLANGIC_YILI;
 
-  // Saltanatı hanedan tarihine işle (en eski kayıt 50'yi aşınca düşer)
+  // Saltanatı hanedan tarihine işle (en eski kayıt 50'yi aşınca düşer).
+  // Çözülmüş mezar ibaresini kaydet ki geç dönem varyantları defterde görünsün.
   saltanatlar.push({
     yil: bitisYili,
     sure: gecenYil,
     sultan: sultanBul(bitisYili),
     son: sonAnahtari,
+    mezar: son.mezar,
   });
   if (saltanatlar.length > 50) saltanatlar.shift();
   saltanatlariKaydet();
@@ -466,10 +583,15 @@ function oyunuBitir(sonAnahtari) {
     hikayeSatiri = `<div class="hikaye-akibet">${HIKAYE_SONUCLARI.yarim}</div>`;
   }
 
+  const suikastSatiri = durum.suikastSayisi > 0
+    ? `<div><span>${durum.suikastSayisi}</span> padişah suikaste kurban gitti</div>`
+    : "";
+
   document.getElementById("son-ozet").innerHTML = `
     <div><span>${gecenYil}</span> yıl hüküm sürüldü (${BASLANGIC_YILI}–${Math.min(durum.yil, BITIS_YILI)})</div>
     <div><span>${durum.gorulenSultanlar.size}</span> padişah tahta çıktı</div>
     <div><span>${durum.kararSayisi}</span> karar verildi</div>
+    ${suikastSatiri}
     ${hikayeSatiri}
     ${yeniRekorMu ? "<div class='yeni-rekor'>Yeni rekor!</div>" : `<div>Rekorunuz: <span>${Math.max(eskiRekor, gecenYil)}</span> yıl</div>`}
   `;
@@ -525,9 +647,11 @@ function kartGoster(kart) {
     dolgu.style.width = "0%";
     durum.tepkiZamanlayici = setTimeout(() => {
       // Önce ceza işler; bildirim en son gelir ki araya girebilecek
-      // "yeni padişah" duyurusunun altında kaybolmasın
-      secimYap(durum.aktifKart.gecikme);
-      bildirim("Karar veremediniz — tereddüdün bedeli oldu.");
+      // "yeni padişah" duyurusunun altında kaybolmasın. Öldürücü gecikmede
+      // ise suikast/oyun-sonu kendi mesajını verir — generic uyarıyı bastırma.
+      const gecikme = durum.aktifKart.gecikme;
+      secimYap(gecikme);
+      if (!gecikme.oldur) bildirim("Karar veremediniz — tereddüdün bedeli oldu.");
     }, kart.sure * 1000);
   } else {
     cubuk.classList.add("gizli");
@@ -632,7 +756,9 @@ function defterCiz() {
   kayitlar.innerHTML = saltanatlar.length
     ? saltanatlar.slice().reverse().map((s) => {
         const devir = s.sultan === "Fetret Devri" ? "Fetret Devri'nde" : s.sultan + " devrinde";
-        return `<div class="defter-saltanat"><span>${s.yil}</span> — ${s.sure} yıl sürdü; ${devir} ${MEZAR_METINLERI[s.son]}.</div>`;
+        // Yeni kayıtlar çözülmüş mezar ibaresini taşır; eski kayıtlarda temel metne düş
+        const mezar = s.mezar || MEZAR_METINLERI[s.son] || "saltanatı sona erdi";
+        return `<div class="defter-saltanat"><span>${s.yil}</span> — ${s.sure} yıl sürdü; ${devir} ${mezar}.</div>`;
       }).join("")
     : `<div class="defter-saltanat kilitli">— henüz saltanat kaydı yok —</div>`;
 
@@ -641,13 +767,19 @@ function defterCiz() {
 }
 
 // Seçim düğmesinin üzerine gelince hangi güçlerin etkileneceğini
-// (yönünü söylemeden) küçük bir noktayla belli et — merak baki kalsın
+// (yönünü söylemeden) küçük bir noktayla belli et — merak baki kalsın.
+// SIFIR etkiyi işaretleme (Kader Anı kartları dört gücü de 0'la gönderiyor);
+// yalnız GERÇEKTEN değişen güçlere altın nokta koy. Öldürücü seçimlerde ise
+// dört güç birden kırmızı yanar — "her şey tehlikede" uyarısı.
 function etkiIpucu(secimAnahtari, goster) {
   if (!durum || !durum.aktifKart) return;
-  const etki = durum.aktifKart[secimAnahtari].etki;
+  const secim = durum.aktifKart[secimAnahtari];
+  const etki = secim.etki || {};
+  const olumcul = goster && Boolean(secim.oldur);
   for (const guc of ["hazine", "ordu", "halk", "ulema"]) {
-    document.getElementById("stat-" + guc)
-      .classList.toggle("etkilenecek", goster && guc in etki);
+    const stat = document.getElementById("stat-" + guc);
+    stat.classList.toggle("etkilenecek", goster && !olumcul && Boolean(etki[guc]));
+    stat.classList.toggle("olumcul-ipucu", olumcul);
   }
 }
 
