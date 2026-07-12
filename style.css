@@ -152,6 +152,69 @@ h1 {
   100% { opacity: 0; }
 }
 
+/* ---------- Süren dertler (buhran rozetleri) ---------- */
+
+.efekt-satiri {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.efekt-cip {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  padding: 4px 12px;
+  border: 1px solid var(--tehlike);
+  border-radius: 12px;
+  color: var(--tehlike);
+  background: rgba(214, 69, 69, 0.1);
+  animation: nabiz 1.6s infinite;
+}
+
+/* Buhran kartları: koyu al zemin, kötü haber görünümü */
+.kart.buhran {
+  background: linear-gradient(160deg, #46121c 0%, #2a0a10 100%);
+  color: var(--fildisi);
+  border-color: var(--tehlike);
+  box-shadow:
+    inset 0 0 0 4px #380e16,
+    inset 0 0 0 5px rgba(214, 69, 69, 0.5),
+    0 10px 34px rgba(0, 0, 0, 0.6);
+}
+
+.kart.buhran .konusan { color: var(--tehlike); }
+.kart.buhran .portre { color: rgba(243, 233, 210, 0.85); }
+
+/* Kader Anı: Fable 5 canlı olayları — gece mavisi, altın ışıltılı */
+.kart.fable {
+  background: linear-gradient(160deg, #1b2440 0%, #101627 100%);
+  color: var(--fildisi);
+  border-color: var(--altin-acik);
+  box-shadow:
+    inset 0 0 0 4px #16203a,
+    inset 0 0 0 5px rgba(224, 190, 85, 0.45),
+    0 10px 34px rgba(0, 0, 0, 0.6),
+    0 0 24px rgba(93, 130, 216, 0.25);
+}
+
+.kart.fable .konusan { color: var(--altin-acik); }
+.kart.fable .portre { color: rgba(200, 214, 255, 0.9); }
+
+/* Köşede küçük, nabız gibi atan bir yıldız — canlı üretimin işareti */
+.kart.fable::after {
+  content: "✦";
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  font-size: 18px;
+  color: var(--altin-acik);
+  opacity: 0.8;
+  animation: nabiz 2s infinite;
+}
+
 /* ---------- Sefer paneli ---------- */
 
 .kampanya-panel {

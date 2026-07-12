@@ -212,8 +212,14 @@ const KONUSAN_PORTRE = {
   "Matbuat Müdürü": "efendi", "Hariciye Nazırı": "efendi", "İskân Memuru": "efendi",
 };
 
-function portreSvg(konusan) {
-  const tip = KONUSAN_PORTRE[konusan] || "halk";
+// Arketip anahtarından (ör. "vezir") portre SVG'si üretir.
+function portreSvgTip(tip) {
+  const govde = PORTRELER[tip] || PORTRELER.halk;
   return `<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4"
-    stroke-linecap="round" stroke-linejoin="round">${PORTRELER[tip]}${PORTRE_GOVDE}</svg>`;
+    stroke-linecap="round" stroke-linejoin="round">${govde}${PORTRE_GOVDE}</svg>`;
+}
+
+// Konuşan adından (ör. "Sadrazam") arketibe eşleyip portre üretir.
+function portreSvg(konusan) {
+  return portreSvgTip(KONUSAN_PORTRE[konusan] || "halk");
 }

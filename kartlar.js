@@ -1184,3 +1184,65 @@ const KAMPANYALAR = {
     },
   },
 };
+
+// ============================================================
+// BUHRANLAR — rahatlık bozan felaket kartları.
+// Oyun, dört gücün uzun süre güvenli bantta seyrettiğini görürse
+// (rutin!) bu havuzdan bir buhran patlatır. Seçimlerdeki "efekt"
+// birkaç karar süren bir dert bırakır: her kararda "tik" kadar
+// güç kaybettirir. Ağır bedel ödeyen dert kısa sürer.
+// ============================================================
+
+const BUHRAN_KARTLARI = [
+  {
+    buhran: true,
+    konusan: "Hekimbaşı",
+    metin: "Kara ölüm payitahtta, hünkârım: mahalleler kapanıyor, cenazeler kaldırılamıyor.",
+    a: { yazi: "Karantina kur, hekimleri seferber et", etki: { hazine: -12 }, efekt: { ad: "Veba", kalan: 2, tik: { halk: -3 } } },
+    b: { yazi: "Bu, kaderin takdiri", etki: { ulema: 4 }, efekt: { ad: "Veba", kalan: 5, tik: { halk: -4, hazine: -2 } } },
+  },
+  {
+    buhran: true,
+    konusan: "Haberci",
+    metin: "Rüzgârlı gecede çıkan yangın üç semti yuttu; alevler tersaneye uzanıyor!",
+    a: { yazi: "Orduyu söndürmeye ver", etki: { ordu: -8, halk: 4 }, efekt: { ad: "Enkaz", kalan: 2, tik: { hazine: -3 } } },
+    b: { yazi: "Sarayı koru, gerisi yansın", etki: { halk: -10 }, efekt: { ad: "Enkaz", kalan: 4, tik: { hazine: -3 } } },
+  },
+  {
+    buhran: true,
+    minYil: 1520,
+    konusan: "Taşra Valisi",
+    metin: "Anadolu yangın yeri: Celali orduları kasabaları basıyor, vergi memurları kaçıyor.",
+    a: { yazi: "Sekban kuvvetiyle üzerlerine yürü", etki: { ordu: -10, halk: -4 }, efekt: { ad: "Kargaşa", kalan: 2, tik: { hazine: -3 } } },
+    b: { yazi: "Elebaşılarına af ve makam dağıt", etki: { hazine: -10 }, efekt: { ad: "Kargaşa", kalan: 4, tik: { hazine: -2, halk: -2 } } },
+  },
+  {
+    buhran: true,
+    konusan: "Şehremini",
+    metin: "İki mevsimdir yağmur yok; ambarlar dibini gösterdi, fırın önlerinde bıçaklar çekiliyor.",
+    a: { yazi: "Mısır'dan zahire filosu getirt", etki: { hazine: -14 }, efekt: { ad: "Kıtlık", kalan: 2, tik: { halk: -2 } } },
+    b: { yazi: "Ekmeği karneye bağla", etki: { halk: -6 }, efekt: { ad: "Kıtlık", kalan: 4, tik: { halk: -3 } } },
+  },
+  {
+    buhran: true,
+    minYil: 1410,
+    konusan: "Casus",
+    metin: "Kendine 'gerçek şehzade' diyen bir düzmece Rumeli'de ordu topluyor; safları her gün kabarıyor.",
+    a: { yazi: "Kuvvet gönder, yakalat", etki: { ordu: -8 }, efekt: { ad: "Fitne", kalan: 2, tik: { halk: -2 } } },
+    b: { yazi: "Fetva ile itibarını yerle bir et", etki: { ulema: -6 }, efekt: { ad: "Fitne", kalan: 4, tik: { halk: -2, ordu: -2 } } },
+  },
+  {
+    buhran: true,
+    konusan: "Yeniçeri Ağası",
+    metin: "Kazanlar devrildi, hünkârım! Ocak ulufe, ihsan ve iki vezir kellesi istiyor; kapıya dayandılar.",
+    a: { yazi: "İhsan dağıt, öfkeyi satın al", etki: { hazine: -14, ordu: 4 } },
+    b: { yazi: "Kapıları tutun, boyun eğmeyin", etki: { ordu: -8 }, efekt: { ad: "Kazan Kaynıyor", kalan: 3, tik: { ordu: -2, halk: -2 } } },
+  },
+  {
+    buhran: true,
+    konusan: "Kaptan-ı Derya",
+    metin: "Korsan filoları boğazı tuttu; zahire gemileri geçemiyor, kıyı köyleri yağmada.",
+    a: { yazi: "Donanmayla yarıp geç", etki: { ordu: -8 }, efekt: { ad: "Abluka", kalan: 2, tik: { hazine: -3 } } },
+    b: { yazi: "Geçiş haracını öde", etki: { hazine: -12 } },
+  },
+];

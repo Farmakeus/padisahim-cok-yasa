@@ -160,6 +160,10 @@ function oyunuBaslat() {
     aktifKart: null,
     bekleyenler: [], // kuyruktaki akıbet kartları: {id, kalan karar sayısı}
     kampanya: null,  // süren sefer: {id, adim, basari} — sefer boyunca yıl donar
+    // Buhran sistemi: oyun rahat giderse (rutin!) felaket patlatır
+    efektler: [],        // süren dertler: {ad, kalan, tik} — her karar tik işler
+    rahatSayac: 0,       // dört gücün güvenli bantta geçirdiği ardışık karar
+    gorulenBuhran: new Set(),
     // Kara Mühür hikâyesi — kaldığı yer defterden okunur (defter.siradaki)
     hikayeSayac: 0,    // son hikâye kartından bu yana geçen karar
     hikayeGorulen: 0,  // bu oyunda kaç bölüm görüldü
@@ -168,10 +172,14 @@ function oyunuBaslat() {
     tepkiSayac: 0,             // son ani olaydan bu yana çekilen kart
     gorulenTepki: new Set(),   // bu oyunda çıkmış tepki kartları
     tepkiZamanlayici: null,    // süre dolunca gecikme cezasını işletir
+    // Kader Anı (Fable 5 canlı olayları) — sunucu yoksa hep atlanır
+    fableSayac: 0,             // son Kader Anı'ndan bu yana geçen genel kart
   };
   ekranSec("oyun-ekrani");
   kartGoster(kartCek());
   arayuzuGuncelle();
+  // Fable 5 sunucusu ayaktaysa ilk Kader Anı'nı arka planda hazırlamaya başla
+  if (typeof fablePrefetch === "function") fablePrefetch(durum);
 }
 
 // --- Yardımcılar ---
@@ -247,6 +255,41 @@ function kartCek() {
     return HIKAYE_KARTLARI[defter.siradaki];
   }
 
+  // Buhran: oyun uzun süredir rahat gidiyorsa (tüm güçler güvenli
+  // bantta) ve süren bir dert yoksa, felaket kapıyı çalabilir
+  if (
+    durum.kararSayisi >= 10 &&
+    durum.rahatSayac >= 8 &&
+    durum.efektler.length === 0 &&
+    Math.random() < 0.35
+  ) {
+    const havuz = BUHRAN_KARTLARI.filter(
+      (k) => !durum.gorulenBuhran.has(k) && (!k.minYil || durum.yil >= k.minYil)
+    );
+    if (havuz.length) {
+      const kart = rastgele(havuz);
+      durum.gorulenBuhran.add(kart);
+      durum.rahatSayac = 0;
+      durum.hikayeSayac++;
+      durum.tepkiSayac++;
+      return kart;
+    }
+  }
+
+  // Kader Anı: Fable 5 sunucusu ayaktaysa, oyuncunun O ANKİ durumuna
+  // özel canlı üretilmiş bir kart hazır olabilir. En az 6 kart arayla
+  // araya girer. Sunucu yoksa (ör. paylaşılan statik sürüm) fableOlayAl
+  // tanımsızdır ya da null döner — bu blok sessizce atlanır.
+  if (durum.fableSayac >= 6 && typeof fableOlayAl === "function") {
+    const fableKart = fableOlayAl();
+    if (fableKart) {
+      durum.fableSayac = 0;
+      durum.hikayeSayac++;
+      durum.tepkiSayac++;
+      return fableKart;
+    }
+  }
+
   // Ani olay: en az 6 kart arayla, %20 ihtimalle araya girer.
   // Her kart bir oyunda en fazla bir kez çıkar.
   if (durum.tepkiSayac >= 6 && Math.random() < 0.2) {
@@ -274,6 +317,7 @@ function kartCek() {
   if (durum.sonKartlar.length > 8) durum.sonKartlar.shift();
   durum.hikayeSayac++;
   durum.tepkiSayac++;
+  durum.fableSayac++;
   return kart;
 }
 
@@ -287,6 +331,18 @@ function secimYap(secim) {
     durum[guc] += deger;
   }
   durum.kararSayisi++;
+
+  // Süren dertler her kararda kanatır; süresi dolan dert düşer.
+  // Yeni dert (bu seçimden geliyorsa) bu kararda değil, sonrakinden
+  // itibaren işlemeye başlar.
+  for (const dert of durum.efektler) {
+    for (const [guc, deger] of Object.entries(dert.tik)) durum[guc] += deger;
+    dert.kalan--;
+  }
+  durum.efektler = durum.efektler.filter((dert) => dert.kalan > 0);
+  if (secim.efekt) {
+    durum.efektler.push({ ad: secim.efekt.ad, kalan: secim.efekt.kalan, tik: secim.efekt.tik });
+  }
 
   // Kuyruktaki akıbetler yaklaşır; bu seçim yeni bir akıbet ekliyorsa
   // kuyruğa girer (aynı akıbet zaten bekliyorsa yenilenmez)
@@ -325,6 +381,13 @@ function secimYap(secim) {
     durum[guc] = Math.max(1, Math.min(99, durum[guc]));
   }
 
+  // Rahatlık ölçümü: dört güç de güvenli banttaysa oyun rutine
+  // biniyor demektir — sayaç dolunca buhran kapıyı çalar
+  const rahat = ["hazine", "ordu", "halk", "ulema"].every(
+    (guc) => durum[guc] >= 32 && durum[guc] <= 68
+  );
+  durum.rahatSayac = rahat ? durum.rahatSayac + 1 : 0;
+
   // Sefer sırasında yıl donar: kuşatma haftalarla ölçülür, yıllarla değil.
   // (Sefer kartları ve seferi başlatan seçim yıl ilerletmez.)
   if (!durum.aktifKart.sefer && !secim.kampanya) {
@@ -334,6 +397,9 @@ function secimYap(secim) {
 
   kartGoster(kartCek());
   arayuzuGuncelle();
+  // Bir sonraki Kader Anı'nı arka planda hazırla (zaten hazır/çekiliyorsa
+  // no-op). Böylece kartCek bir Kader Anı tükettiğinde yenisi yola çıkar.
+  if (typeof fablePrefetch === "function") fablePrefetch(durum);
 }
 
 function sonKontrol() {
@@ -423,23 +489,29 @@ function kartGoster(kart) {
   durum.aktifKart = kart;
   const kutu = document.getElementById("kart");
 
-  // Konuşanın portresi (serpuşundan tanınır)
-  document.getElementById("kart-portre").innerHTML = portreSvg(kart.konusan);
+  // Konuşanın portresi (serpuşundan tanınır). Kader Anı kartları arketipi
+  // doğrudan "portre" alanında taşır; ötekiler konuşan adından eşlenir.
+  document.getElementById("kart-portre").innerHTML =
+    kart.portre ? portreSvgTip(kart.portre) : portreSvg(kart.konusan);
 
-  // Hikâye kartlarında bölüm adı, ani olay ve akıbetlerde uyarı öne eklenir
+  // Hikâye kartlarında bölüm adı, özel kartlarda uyarı öne eklenir
   document.getElementById("kart-konusan").textContent =
     kart.bolum ? kart.bolum + " • " + kart.konusan
     : kart.tepki ? "Ani Olay • " + kart.konusan
     : kart.akibet ? "Akıbet • " + kart.konusan
+    : kart.buhran ? "Buhran • " + kart.konusan
+    : kart.fable ? "Kader Anı • " + kart.konusan
     : kart.konusan;
   document.getElementById("kart-metin").textContent = kart.metin;
   document.getElementById("secim-a").textContent = kart.a.yazi;
   document.getElementById("secim-b").textContent = kart.b.yazi;
 
-  // Tarihî olay, sefer, hikâye ve ani olay kartlarını görsel olarak ayır
+  // Tarihî olay, sefer, hikâye, ani olay ve buhran kartlarını ayır
   kutu.classList.toggle("tarihi", (Boolean(kart.id) || Boolean(kart.sefer)) && !kart.hikaye);
   kutu.classList.toggle("hikaye", Boolean(kart.hikaye));
   kutu.classList.toggle("tepki", Boolean(kart.tepki));
+  kutu.classList.toggle("buhran", Boolean(kart.buhran));
+  kutu.classList.toggle("fable", Boolean(kart.fable));
 
   // Ani olaylarda süre çubuğu erir; dolarsa gecikme cezası işler
   const cubuk = document.getElementById("tepki-cubugu");
@@ -471,6 +543,11 @@ function arayuzuGuncelle() {
   document.getElementById("yil-goster").textContent = durum.yil;
   document.getElementById("devir-goster").textContent = devirBul(durum.yil);
   document.getElementById("sultan-goster").textContent = sultanBul(durum.yil);
+
+  // Süren dertler: her biri kalan karar sayısıyla bir rozet olarak görünür
+  document.getElementById("efekt-satiri").innerHTML = durum.efektler
+    .map((dert) => `<span class="efekt-cip">${dert.ad} • ${dert.kalan} karar</span>`)
+    .join("");
 
   // Sefer paneli: sefer sürerken gidişat çubuğu ve aşama sayacı görünür
   const panel = document.getElementById("kampanya-panel");
